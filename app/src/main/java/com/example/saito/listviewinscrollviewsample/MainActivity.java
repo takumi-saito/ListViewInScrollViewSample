@@ -1,16 +1,14 @@
 package com.example.saito.listviewinscrollviewsample;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.ScrollingTabContainerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +16,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
-    ListAdapter mListAdapter;
-    MesuredListView mMesuredListView;
-    List<String> mValues;
-    ScrollView mScrollView;
-    boolean initFlg = true;
+    private ListAdapter mListAdapter;
+    private ListView mListView;
+    private List<String> mValues;
+    private View mHeader;
+    private View mFooter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +28,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        mMesuredListView = (MesuredListView) findViewById(R.id.list);
+        mListView = (ListView) findViewById(R.id.list);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+             @Override
+             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                 Toast.makeText(getBaseContext(), "position:" + position, Toast.LENGTH_SHORT).show();
+
+                 if (position == 0) {
+                     // header
+                     return;
+                 }
+                 int itemPosition = position - 1;
+                 if (itemPosition == mValues.size()) {
+                     // footer
+                     return;
+                 }
+
+                 // item
+                 String value = mValues.get(itemPosition);
+                 ((TextView) mHeader.findViewById(R.id.text_header_1)).setText(value);
+                 ((TextView) mHeader.findViewById(R.id.text_header_2)).setText(value);
+                 ((TextView) mHeader.findViewById(R.id.text_header_3)).setText(value);
+
+                 ((TextView) mFooter.findViewById(R.id.text_footer_1)).setText(value);
+                 ((TextView) mFooter.findViewById(R.id.text_footer_2)).setText(value);
+                 ((TextView) mFooter.findViewById(R.id.text_footer_3)).setText(value);
+             }
+         });
+
+        mHeader = (View) getLayoutInflater().inflate(R.layout.header_listview, null);
+        mFooter = (View)getLayoutInflater().inflate(R.layout.footer_listview,null);
+        mListView.addHeaderView(mHeader);
+        mListView.addFooterView(mFooter);
 
         mValues = new ArrayList<String>();
         for (int i = 1; i < 51; i++) {
@@ -42,40 +71,30 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < mValues.size(); i++) {
             mListAdapter.add(mValues.get(i));
         }
-        mMesuredListView.setAdapter(mListAdapter);
+        mListView.setAdapter(mListAdapter);
         mListAdapter.refreshItemList(mValues);
 
-        mScrollView = (ScrollView) findViewById(R.id.scroll);
-        Log.v("saito", "onCreate getScrollX:" + mScrollView.getScrollX()+ " " + "getScrollY:" + mScrollView.getScrollY());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mListAdapter.refreshItemList(mValues);
-        Log.v("saito", "onCreate getScrollX:" + mScrollView.getScrollX()+ " " + "getScrollY:" + mScrollView.getScrollY());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mListAdapter.refreshItemList(mValues);
-        Log.v("saito", "onResume getScrollX:" + mScrollView.getScrollX()+ " " + "getScrollY:" + mScrollView.getScrollY());
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        Log.v("saito", "onWindowFocusChanged getScrollX:" + mScrollView.getScrollX()+ " " + "getScrollY:" + mScrollView.getScrollY());
-        if (initFlg) {
-            mScrollView.setScrollY(0);
-        }
-        initFlg = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.v("saito", "onPause getScrollX:" + mScrollView.getScrollX()+ " " + "getScrollY:" + mScrollView.getScrollY());
     }
 }
